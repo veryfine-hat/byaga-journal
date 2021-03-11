@@ -1,0 +1,22 @@
+{
+  "verbose": true,
+  "collectCoverage": true,
+  "coverageDirectory": "report/coverage",
+  "coverageReporters": [
+    "text",
+    "lcov",
+    "cobertura"
+  ],
+  "reporters": [
+    "default",
+    [
+      "jest-junit",
+      {
+        "outputDirectory": "./report/junit"
+      }
+    ]
+  ],
+  "coveragePathIgnorePatterns": [
+    "serviceWorker.js"
+  ]
+}
