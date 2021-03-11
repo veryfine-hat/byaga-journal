@@ -1,3 +1,5 @@
+def STACK_NAME = 'byaga-journal
+
 def deploy(envName, stackName, stripeKey) {
   NPM_TOKEN = credentials('byaga-npm')
   script {
