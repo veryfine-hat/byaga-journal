@@ -1,5 +1,5 @@
 const logParamsToData = require("./logParamsToData")
-const uuid = require('uuid/v4')
+const {v4:uuid} = require('uuid')
 
 function SpanCreator(log, parent) {
     let context = {};
