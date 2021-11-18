@@ -17,7 +17,7 @@ function SpanCreator(log, parent) {
         return result;
     };
 
-    this.annotate = (data, {hoist = false, cascade = false}) => {
+    this.annotate = (data, {hoist = false, cascade = false}={}) => {
         if (hoist && parent) {
             parent.annotate(data, hoist);
         }
