@@ -8,7 +8,9 @@ declare namespace Byaga {
         beginSpan(data:object) : ISpan
 
         annotate(data: object, host: boolean) : void
+
         readonly context: Object
+        readonly cascadedContext: Object
     }
     export interface ILogger extends ISpanCreator {
         configure(options: IConfiguration)

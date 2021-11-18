@@ -1,7 +1,9 @@
 const logParamsToData = require("./logParamsToData")
+const uuid = require('uuid/v4')
 
 function SpanCreator(log, parent) {
     let context = {};
+    let cascadedContext = {}
 
     this.beginSpan = (...args) => {
         const child = new Span(log, this);
@@ -15,15 +17,30 @@ function SpanCreator(log, parent) {
         return result;
     };
 
-    this.annotate = (data, hoist = false) => {
+    this.annotate = (data, {hoist = false, cascade = false}) => {
         if (hoist && parent) {
             parent.annotate(data, hoist);
         }
-        context = { ...context, ...data };
+
+        if (cascade){
+            cascadedContext = {...cascadedContext, ...data};
+        } else {
+            context = {...context, ...data};
+        }
     };
-    Object.defineProperty(this, 'context', {
-        get() { return context; }
+    Object.defineProperties(this, {
+        'context': {
+            get() {
+                return context;
+            }
+        },
+        'cascadedContext': {
+            get() {
+                return cascadedContext
+            }
+        }
     });
+    this.annotate({ 'trace.span_id': uuid() })
 }
 
 function Span(log, parent) {
@@ -33,7 +50,13 @@ function Span(log, parent) {
 
     this.end = (...args) => {
         const data = logParamsToData(args);
-        log.log({ duration_ms: Date.now() - spanStart, ...this.context, ...data });
+        log.log({
+            ...parent.cascadedContext,
+            ...this.cascadedContext,
+            duration_ms: Date.now() - spanStart,
+            ...this.context,
+            ...data
+        });
     };
     this.startTimer = (name, start = {}) => {
         const startAt = Date.now();
