@@ -8,6 +8,7 @@ function SpanCreator(log, parent) {
     this.beginSpan = (...args) => {
         const child = new Span(log, this);
         child.annotate(logParamsToData(args));
+        child.annotate({ 'trace.span_id': uuid() })
         return child;
     };
     this.span = async (fn, ...args) => {
@@ -40,7 +41,6 @@ function SpanCreator(log, parent) {
             }
         }
     });
-    this.annotate({ 'trace.span_id': uuid() })
 }
 
 function Span(log, parent) {
