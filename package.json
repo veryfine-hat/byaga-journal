@@ -1,6 +1,6 @@
 {
   "name": "@byaga/journal",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Structured logging utility",
   "main": "index.js",
   "scripts": {
