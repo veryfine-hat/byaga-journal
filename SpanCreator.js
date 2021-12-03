@@ -1,5 +1,5 @@
 const logParamsToData = require("./logParamsToData")
-const {v4:uuid} = require('uuid')
+const {v4: uuid} = require('uuid')
 
 function SpanCreator(log, parent) {
     let context = {};
@@ -8,7 +8,10 @@ function SpanCreator(log, parent) {
     this.beginSpan = (...args) => {
         const child = new Span(log, this);
         child.annotate(logParamsToData(args));
-        child.annotate({ 'trace.span_id': uuid() })
+        child.annotate({
+            'time': new Date(Date.now()).toISOString(),
+            'trace.span_id': uuid()
+        })
         return child;
     };
     this.span = async (fn, ...args) => {
@@ -18,12 +21,12 @@ function SpanCreator(log, parent) {
         return result;
     };
 
-    this.annotate = (data, {hoist = false, cascade = false}={}) => {
+    this.annotate = (data, {hoist = false, cascade = false} = {}) => {
         if (hoist && parent) {
             parent.annotate(data, hoist);
         }
 
-        if (cascade){
+        if (cascade) {
             cascadedContext = {...cascadedContext, ...data};
         } else {
             context = {...context, ...data};

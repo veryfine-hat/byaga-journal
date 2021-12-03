@@ -12,6 +12,7 @@ export declare class SpanCreator implements ISpanCreator {
 
     annotate(data: object, host?: boolean) : void
 
+    readonly cascadedContext: object
     readonly context: object
 }
 
@@ -34,5 +35,7 @@ export declare class Span implements ISpan {
     time(fn: () => Promise<any>, name: string): Promise<any>;
 
     annotate(data: object, host?: boolean): void;
+
+    readonly cascadedContext: object
     readonly context: Object;
 }
