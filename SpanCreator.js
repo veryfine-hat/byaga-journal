@@ -12,7 +12,7 @@ function SpanCreator(log, parent) {
             'time': new Date(Date.now()).toISOString(),
             'trace.span_id': uuid()
         })
-        return child;
+        return child
     };
     this.span = async (fn, ...args) => {
         const span = this.beginSpan(...args);
@@ -54,6 +54,7 @@ function Span(log, parent) {
     this.end = (...args) => {
         const data = logParamsToData(args);
         log.log({
+            time: spanStart,
             ...parent.cascadedContext,
             ...this.cascadedContext,
             duration_ms: Date.now() - spanStart,
@@ -80,12 +81,15 @@ function Span(log, parent) {
         }
     };
 
-    this.exception = (error, data = {}) => {
+    this.exception = (error, data) => {
+        error = error || "Unknown Error"
         const details = {
-            'error.stack': error.stack,
-            'error.message': error.message || error.toString()
+            'error': error.toString(),
+            'error.details': error.stack,
+            'error.message': error.message || error.toString(),
+            'error.type': typeof error
         };
-        const annotations = Object.entries(data).reduce((logData, [key, value]) => ({
+        const annotations = Object.entries(data || {}).reduce((logData, [key, value]) => ({
             ...logData,
             [`error.${key}`]: value
         }), details);

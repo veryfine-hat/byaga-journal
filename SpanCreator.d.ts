@@ -3,7 +3,7 @@ import {ILogger, ISpan, ISpanCreator} from "./byaga";
 export declare class SpanCreator implements ISpanCreator {
     constructor(log: ILogger, parent?: ILogger)
 
-    beginSpan(data: object): Span;
+    beginSpan(data:object) : Span
 
     span(fn: () => Promise<any>, data: object): any;
     span(fn: () => Promise<any>, ...args: string[]): any;
@@ -11,6 +11,7 @@ export declare class SpanCreator implements ISpanCreator {
     span(fn: () => any, ...args: string[]): any;
 
     annotate(data: object, host?: boolean) : void
+    exception(error: Error, data?: object): void;
 
     readonly cascadedContext: object
     readonly context: object
@@ -23,8 +24,6 @@ export declare class Span implements ISpan {
     end(...args: string[]): void;
     end(object): void;
 
-    exception(error: Error, data?: object): void;
-
     span(fn: () => Promise<any>, data: object): any;
     span(fn: () => Promise<any>, ...args: string[]): any;
     span(fn: () => any, data: object): any;
@@ -35,6 +34,7 @@ export declare class Span implements ISpan {
     time(fn: () => Promise<any>, name: string): Promise<any>;
 
     annotate(data: object, host?: boolean): void;
+    exception(error: Error, data?: object): void;
 
     readonly cascadedContext: object
     readonly context: Object;

@@ -5,9 +5,9 @@ declare namespace Byaga {
         span(fn: () => any, data: object): any
         span(fn: () => any, ...args: string[]): any
         beginSpan(data:object) : ISpan
-        beginSpan(data:object) : ISpan
 
         annotate(data: object, host: boolean) : void
+        exception(error: Error, data?:object) : void
 
         readonly context: Object
         readonly cascadedContext: Object
@@ -25,7 +25,6 @@ declare namespace Byaga {
 
         end(...args: string[]): void
         end(object): void
-        exception(error: Error, data?:object) : void
     }
 
     export interface IConfiguration {

@@ -8,6 +8,7 @@ export default class Journal implements ILogger{
     readonly context: Object;
 
     annotate(data: object, host: boolean): void;
+    exception(error: Error, data?: object): void;
 
     beginSpan(data: object): ISpan;
 
@@ -20,4 +21,6 @@ export default class Journal implements ILogger{
 
     log(data: object): void;
     log(...args: string[]): void;
+
+    readonly cascadedContext: Object;
 }
