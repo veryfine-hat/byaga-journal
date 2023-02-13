@@ -1,4 +1,6 @@
 /// <reference types="typescript" />
 const Journal = require("./Journal")
+const Context = require("./Context")
 
-module.exports = new Journal()
+Context.configure({logger: new Journal()})
+module.exports = Context;
