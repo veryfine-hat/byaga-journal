@@ -13,7 +13,7 @@ asyncLocalStorage.enterWith(config)
 const configure = ({ logger, ...options }) => {
   const store = asyncLocalStorage.getStore();
   logger && store.set(LOGGER, logger)
-  store.get(logger).configure(options)
+  store.get(LOGGER).configure(options)
 }
 
 const getContext = () => asyncLocalStorage.getStore().get(CONTEXT);
