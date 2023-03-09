@@ -1,4 +1,5 @@
 const { AsyncLocalStorage } = require('async_hooks');
+const duration = require('./duration')
 const CONTEXT = 'context';
 const CASCADED_CONTEXT = 'cascaded-context'
 const LOGGER = 'logger'
@@ -49,10 +50,10 @@ module.exports.configure = configure
 module.exports.log = (...args) => getLogger().log(...args)
 module.exports.annotate = annotate
 module.exports.startTimer = name => {
-  const startAt = Date.now();
+  const end = duration();
   return () => {
     const key = name ? `${name}_dur_ms` : 'duration_ms'
-    annotate({ [key]: Date.now() - startAt });
+    annotate({ [key]: end() });
   }
 }
 module.exports.exception = exception
@@ -65,9 +66,9 @@ module.exports.metrics = {
     annotate({[`app.metrics.${name}`]  :  total  })
   },
   startTimer: (name) => {
-    const startAt = Date.now();
+    const end = duration();
     return () => {
-      const duration = sum(name, Date.now() - startAt)
+      const duration = sum(name, end())
       annotate({[`${name}_total_dur_ms`]: duration });
     }
   }
