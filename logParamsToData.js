@@ -9,7 +9,7 @@ function logParamsToData(params) {
             message: params.join(' ')
         };
     }
-    return params[0];
+    return params[0] || {};
 }
 
 module.exports = logParamsToData

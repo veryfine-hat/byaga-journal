@@ -22,22 +22,14 @@ function SpanCreator(log, parent) {
     return result;
   };
 
-  this.annotate = (data,
-                   {
-                     hoist = false,
-                     cascade = false
-                   } = {}
-  ) => {
-    if (hoist && parent) {
-      parent.annotate(data, hoist);
-    }
-
-    if (cascade) {
-      cascadedContext = { ...cascadedContext, ...data };
+  this.annotate = (name, value, options = {}) => {
+    if (typeof name === 'string') {
+      setOne(name, value, options)
     } else {
-      context = { ...context, ...data };
+      setMany(name, value)
     }
   };
+
   Object.defineProperties(this, {
     'context': {
       get() {
@@ -50,6 +42,21 @@ function SpanCreator(log, parent) {
       }
     }
   });
+
+  function setOne(name, value, options={}) {
+    const {cascade, hoist} = options
+    if (hoist && parent) {
+      parent.annotate(name, value, { hoist });
+    }
+
+    context[name] = value
+    if (cascade) cascadedContext[name] = value
+  }
+  function setMany(data, options) {
+    Object.entries(data).forEach(([name, value]) => {
+      setOne(name, value, options)
+    })
+  }
 }
 
 function Span(log, parent) {

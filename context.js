@@ -45,7 +45,10 @@ const get = (name) => getContext().get(name) || getSharedContext().get(name)
 const sum = (name, add) => setContext(name, (get(name) || 0) + add)
 
 module.exports.createSpan = createSpan
-module.exports.withChildSpan = fn => (...args) => createSpan(() => fn(...args))
+module.exports.withChildSpan = (fn, name) => (...args) => createSpan(() => {
+  if (name) annotate({name})
+  return fn(...args)
+})
 module.exports.configure = configure
 module.exports.log = (...args) => getLogger().log(...args)
 module.exports.annotate = annotate
@@ -63,7 +66,7 @@ module.exports.bulkSet = bulkSetContext
 module.exports.metrics = {
   total: (name, add=1) => {
     const total = sum(name, add)
-    annotate({[`app.metrics.${name}`]  :  total  })
+    annotate({[`metrics.${name}`]  :  total  })
   },
   startTimer: (name) => {
     const end = duration();
