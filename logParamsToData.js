@@ -1,3 +1,4 @@
+const normalizePropertyNames = require('./normalize-property-name')
 /**
  * Turn log input args into a structured log object
  * param {Array<string|object>} params - log method input params
@@ -9,7 +10,11 @@ function logParamsToData(params) {
             message: params.join(' ')
         };
     }
-    return params[0] || {};
+
+    return Object.entries(params[0] || {}).reduce((data, [key, value]) => {
+        data[normalizePropertyNames(key)] = value;
+        return data;
+    }, {})
 }
 
 module.exports = logParamsToData
