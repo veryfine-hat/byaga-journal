@@ -45,9 +45,23 @@ const get = (name) => getContext().get(name) || getSharedContext().get(name)
 const sum = (name, add) => setContext(name, (get(name) || 0) + add)
 
 module.exports.createSpan = createSpan
-module.exports.withChildSpan = (fn, name) => (...args) => createSpan(() => {
+module.exports.withSpan = (fn, journal) => async () => {
+  const config = asyncLocalStorage.getStore();
+  const childConfig = new Map();
+  const logger = journal.beginSpan();
+  childConfig.set(LOGGER, logger);
+  childConfig.set(CONTEXT, new Map());
+  childConfig.set(CASCADED_CONTEXT, new Map(config.get(CASCADED_CONTEXT)));
+  return await asyncLocalStorage.run(childConfig, fn);
+};
+module.exports.withChildSpan = (fn, name) => (...args) => createSpan(async () => {
   if (name) annotate({name})
-  return fn(...args)
+  try {
+    return await fn(...args)
+  } catch(error) {
+    exception(error);
+    return {statusCode: 500, error}
+  }
 })
 module.exports.configure = configure
 module.exports.log = (...args) => getLogger().log(...args)
