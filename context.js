@@ -69,7 +69,7 @@ module.exports.annotate = annotate
 module.exports.startTimer = name => {
   const end = duration();
   return () => {
-    const key = name ? `${name}_dur_ms` : 'duration_ms'
+    const key = name ? `metrics.timers.${name}_dur_ms` : 'duration_ms'
     annotate({ [key]: end() });
   }
 }
@@ -86,7 +86,7 @@ module.exports.metrics = {
     const end = duration();
     return () => {
       const duration = sum(name, end())
-      annotate({[`${name}_total_dur_ms`]: duration });
+      annotate({[`metrics.timers.${name}_total_dur_ms`]: duration });
     }
   }
 }
