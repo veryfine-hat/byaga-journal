@@ -1,6 +1,7 @@
-const Journal = require('./index')
-const loggedMethod = (name, fn) => {
-  return async (...args) => {
+import Journal from './index'
+
+export const loggedMethod = (name: string, fn: Function): Function => {
+  return async (...args: any[]) => {
     const done = Journal.startTimer(name)
     try {
       return await fn(...args);
@@ -8,9 +9,9 @@ const loggedMethod = (name, fn) => {
       Journal.exception(error);
       return { error };
     } finally {
-      done()
+     done();
     }
   }
 }
 
-module.exports = loggedMethod
+export default loggedMethod;

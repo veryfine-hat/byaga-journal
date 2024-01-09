@@ -1,4 +1,4 @@
-function normalizePropertyName(propertyName) {
+export function normalizePropertyName(propertyName:string) :string {
   return propertyName
     .replace(/[A-Z]/g, (c, idx, str) => {
       if (idx === 0) return c; // First character
@@ -11,5 +11,3 @@ function normalizePropertyName(propertyName) {
     .replace(/-/g, "_")
     .toLowerCase()
 }
-
-module.exports = normalizePropertyName

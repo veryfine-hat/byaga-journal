@@ -1,16 +1,18 @@
-const Logger = require("./Journal");
+import { Journal } from "./Journal";
+import {Span} from "./Span";
 
+let logSpy: jest.SpyInstance;
 beforeEach(() => {
   jest.clearAllMocks();
-  jest.spyOn(console, 'log');
+  logSpy = jest.spyOn(console, 'log');
 });
 
 afterEach(() => {
-  console.log.mockReset();
+  logSpy.mockReset();
 });
 
 it('should allow the write method to be overridden', () => {
-  const logger = new Logger();
+  const logger = new Journal();
   const write = jest.fn();
   logger.configure({ write });
   logger.log({ message: 'test' });
@@ -18,14 +20,14 @@ it('should allow the write method to be overridden', () => {
 });
 
 it('should allow logs to be written', () => {
-  const logger = new Logger();
+  const logger = new Journal();
 
   logger.log({ message: 'test' });
   expect(console.log).toHaveBeenCalledWith({ message: 'test' });
 });
 
 it('should allow annotations to be added to future log calls', () => {
-  const logger = new Logger();
+  const logger = new Journal();
   logger.annotate({ some: 'data' });
   logger.log({ message: 'test' });
   expect(console.log)
@@ -36,7 +38,7 @@ it('should allow annotations to be added to future log calls', () => {
 });
 
 it('should allow annotations to be overwritten', () => {
-  const logger = new Logger();
+  const logger = new Journal();
   logger.annotate({ some: 'data' });
   logger.annotate({ some: 'updated-data' });
   logger.log({ message: 'test' });
@@ -48,7 +50,7 @@ it('should allow annotations to be overwritten', () => {
 });
 
 it('should overwrite annotations with an data passed to log', () => {
-  const logger = new Logger();
+  const logger = new Journal();
   logger.annotate({ some: 'data' });
   logger.log({
     message: 'test',
@@ -62,7 +64,7 @@ it('should overwrite annotations with an data passed to log', () => {
 });
 
 it('should allow annotations to be added to child loggers without affecting the parent', () => {
-  const logger = new Logger();
+  const logger = new Journal();
   const child = logger.beginSpan();
   child.annotate({ child: 'data' });
   logger.log({ message: 'test' });
@@ -70,7 +72,7 @@ it('should allow annotations to be added to child loggers without affecting the 
 });
 
 it('should include parent annotations in child loggers', () => {
-  const logger = new Logger();
+  const logger = new Journal();
   logger.annotate({ parent: 'data' });
   const child = logger.beginSpan();
   child.end({ message: 'test' });
@@ -82,7 +84,7 @@ it('should include parent annotations in child loggers', () => {
 });
 
 it('should include child annotations in child loggers', () => {
-  const logger = new Logger();
+  const logger = new Journal();
   const child = logger.beginSpan();
   child.annotate({ child: 'data' });
   child.end({ message: 'test' });
@@ -94,7 +96,7 @@ it('should include child annotations in child loggers', () => {
 });
 
 it('should allow setting root annotations through a child logger', () => {
-  const logger = new Logger();
+  const logger = new Journal();
   logger.annotate({ parent: 'data' });
   const child = logger.beginSpan();
   child.annotate({ child: 'data' }, { hoist: true });
@@ -108,20 +110,21 @@ it('should allow setting root annotations through a child logger', () => {
 });
 
 it('should allow timing blocks of code', () => {
-  const logger = new Logger();
-  const stop = logger.startTimer({ timer: 'data' });
+  const logger = new Journal();
+  const stop = logger.startTimer('test-timer', { timer: 'data' });
   expect(console.log).not.toHaveBeenCalled();
   stop({ end: 'data' });
+  logger.log();
   expect(console.log)
     .toHaveBeenCalledWith({
       timer: 'data',
       end: 'data',
-      'duration_ms': expect.any(Number)
+      'metrics.timers.test_timer_ms': expect.any(Number)
     });
 });
 
 it('should add parent context to child even if set after child is created', () => {
-  const logger = new Logger();
+  const logger = new Journal();
   const child = logger.beginSpan();
 
   logger.annotate({ more: 'data' });
@@ -134,7 +137,7 @@ it('should add parent context to child even if set after child is created', () =
 });
 
 it('should send a log when a child span is ended', () => {
-  const logger = new Logger();
+  const logger = new Journal();
   const child = logger.beginSpan();
 
   expect(console.log).not.toHaveBeenCalled();
@@ -146,13 +149,13 @@ it('should send a log when a child span is ended', () => {
 });
 
 it('should attach exception details to the end log', () => {
-  const logger = new Logger();
+  const logger = new Journal();
   const child = logger.beginSpan();
 
   expect(console.log).not.toHaveBeenCalled();
   try {
     throw new Error('Bang!!!');
-  } catch (e) {
+  } catch (e: any) {
     child.exception(e, { info: 'Test worked' });
   }
 
@@ -167,7 +170,7 @@ it('should attach exception details to the end log', () => {
 });
 
 it('should convert a string log param to an object with a message property', () => {
-  const logger = new Logger();
+  const logger = new Journal();
 
   logger.log('A Message Here');
 
@@ -178,7 +181,7 @@ it('should convert a string log param to an object with a message property', () 
 });
 
 it('should concatenate params into the message param if 1st param is a string', () => {
-  const logger = new Logger();
+  const logger = new Journal();
 
   logger.log('A', 'Message', "Here");
 
@@ -189,7 +192,7 @@ it('should concatenate params into the message param if 1st param is a string', 
 });
 
 it('should convert a string log param to an object with a message property when ending child spans', () => {
-  const logger = new Logger();
+  const logger = new Journal();
   const child = logger.beginSpan();
   child.end('A', 'Message', "Here");
 
@@ -200,7 +203,7 @@ it('should convert a string log param to an object with a message property when 
 });
 
 it('should convert a string log param to an object with a message property when creating child spans', () => {
-  const logger = new Logger();
+  const logger = new Journal();
   const child = logger.beginSpan('A', 'Message', "Here");
   child.end();
 
@@ -211,7 +214,7 @@ it('should convert a string log param to an object with a message property when 
 });
 
 it('should allow a child logger to be initialized with annotations', () => {
-  const logger = new Logger();
+  const logger = new Journal();
   const child = logger.beginSpan({
     child: 'data'
   });
@@ -225,7 +228,7 @@ it('should allow a child logger to be initialized with annotations', () => {
 });
 
 it('should add a duration_ms property to logs created when a span is ended', () => {
-  const logger = new Logger();
+  const logger = new Journal();
   const child = logger.beginSpan({
     child: 'data'
   });
@@ -237,23 +240,10 @@ it('should add a duration_ms property to logs created when a span is ended', () 
     }));
 });
 
-it('should allow recording timers as a named metric on child span', async () => {
-  const logger = new Logger();
-  const child = logger.beginSpan();
-  const result = await child.time(() => Promise.resolve({ more: 'data' }), 'test_log');
-  child.end({ message: 'data' });
-  expect(result).toEqual({ more: 'data' });
-  expect(console.log)
-    .toHaveBeenCalledWith(expect.objectContaining({
-      message: 'data',
-      'metrics.timers.test_log_ms': expect.any(Number),
-    }));
-});
-
 it('should allow wrapping an async method call in a named span', async () => {
-  const logger = new Logger();
+  const logger = new Journal();
   await logger.span(() => new Promise(resolve => {
-    setTimeout(() => resolve(), 0);
+    setTimeout(() => resolve(true), 0);
   }), "onTestExecuted");
 
   expect(console.log).toHaveBeenCalledWith(expect.objectContaining({
@@ -263,7 +253,7 @@ it('should allow wrapping an async method call in a named span', async () => {
 });
 
 it('should return the method call result when wrapping with a span', async () => {
-  const logger = new Logger();
+  const logger = new Journal();
   const result = await logger.span(() => new Promise(resolve => {
     setTimeout(() => resolve('some-return'), 0);
   }), "onTestExecuted");
@@ -272,10 +262,10 @@ it('should return the method call result when wrapping with a span', async () =>
 });
 
 it('should pass the created span into the wrapped method', async () => {
-  const logger = new Logger();
-  await logger.span((span) => new Promise(resolve => {
+  const logger = new Journal();
+  await logger.span((span: Span) => new Promise(resolve => {
     span.annotate({ extra: 'data' });
-    setTimeout(() => resolve(), 0);
+    setTimeout(() => resolve(true), 0);
   }), "onTestExecuted");
 
   expect(console.log).toHaveBeenCalledWith(expect.objectContaining({
