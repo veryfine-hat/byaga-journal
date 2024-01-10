@@ -1,9 +1,10 @@
 import {logParamsToData} from "./log-params-to-data";
 import { Span } from "./Span";
 import {ConfigurationOptions} from './ConfigurationOptions'
+import {StructuredLog} from "./StructuredLog";
 
 export class Journal extends Span {
-  write(data: Object): void {console.log(data)}
+  write(data: StructuredLog): void {console.log(data)}
 
   configure(options: ConfigurationOptions ) {
     this.write = options.write || this.write;
