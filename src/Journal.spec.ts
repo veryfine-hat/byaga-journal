@@ -154,8 +154,9 @@ it('should attach exception details to the end log', () => {
 
   expect(console.log).not.toHaveBeenCalled();
   try {
+    // noinspection ExceptionCaughtLocallyJS
     throw new Error('Bang!!!');
-  } catch (e: any) {
+  } catch (e: unknown) {
     child.exception(e, { info: 'Test worked' });
   }
 

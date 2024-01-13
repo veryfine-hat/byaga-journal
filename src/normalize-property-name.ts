@@ -1,3 +1,15 @@
+/**
+ * Normalizes a property name.
+ *
+ * This function takes a property name as a string and returns a normalized version of it.
+ * The normalization process includes:
+ * - Replacing uppercase characters with their lowercase equivalents, preceded by an underscore.
+ * - Replacing hyphens with underscores.
+ * - Converting the entire string to lowercase.
+ *
+ * @param {string} propertyName - The property name to normalize.
+ * @returns {string} - The normalized property name.
+ */
 export function normalizePropertyName(propertyName:string) :string {
   return propertyName
     .replace(/[A-Z]/g, (c, idx, str) => {

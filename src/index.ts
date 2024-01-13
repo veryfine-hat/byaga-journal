@@ -1,8 +1,7 @@
-import { Journal } from './Journal';
 import * as Context from './context';
+export { logger} from "./context/logger";
+export { Journal } from './Journal';
 
-const journal = new Journal();
-Context.configure({logger: journal})
-
-export { Context, journal }
+export {StructuredLog} from './StructuredLog';
+export { Context }
 export default Context;

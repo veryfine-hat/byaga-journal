@@ -1,7 +1,11 @@
 /node_modules/
-**/*.test.*
-*.iml
-Dockerfile
-jest.config.json
-.gitignore
+**/*.spec.*
 src
+*.iml
+test-results
+.eslintignore
+.eslintrc.js
+.gitignore
+Dockerfile
+Jenkinsfile
+jest.config.js
