@@ -20,4 +20,7 @@ module.exports = {
       }
     ]
   ],
+  collectCoverage: true,
+  coverageDirectory: './test-results/coverage',
+  coverageReporters: ['text', 'lcov', 'html'],
 };
