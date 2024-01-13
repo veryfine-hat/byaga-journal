@@ -1,12 +1,11 @@
 import {LogParameters, logParamsToData} from "./log-params-to-data";
 import {duration} from "./duration";
 import {v4 as uuid} from 'uuid';
-import {StructuredLog} from "./StructuredLog";
+import {StructuredLog, LogItem} from "./StructuredLog";
 import {LogOptions} from "./LogOptions";
 import {normalizePropertyName} from './normalize-property-name'
 import {getClassName} from "./get-class-name";
 
-export type LogItem = number | string | boolean
 type SpannedFunction<T> = (span: Span) => Promise<T>
 
 /**
@@ -75,15 +74,25 @@ export class Span {
     /**
      * Annotates the current span with additional data.
      *
-     * @param {string | StructuredLog} name - The name of the annotation, or a StructuredLog object containing multiple annotations.
-     * @param {LogOptions | LogItem} [value] - The value of the annotation, if `name` is a string.
+     * @param {string} name - The name of the annotation.
+     * @param {LogItem} value - The value of the annotation.
      * @param {LogOptions} [options={}] - Additional options for the annotation.
      */
-    annotate(name: string | StructuredLog, value?: LogOptions | LogItem, options: LogOptions = {}) {
-        if (typeof name === 'string') {
-            this.setOne(name, value, options)
+    annotate(name: string, value: LogItem, options?: LogOptions): void;
+
+    /**
+     * Annotates the current span with multiple annotations.
+     *
+     * @param {StructuredLog} log - A StructuredLog object containing multiple annotations.
+     * @param {LogOptions} [options={}] - Additional options for the annotations.
+     */
+    annotate(log: StructuredLog, options?: LogOptions): void;
+
+    annotate(nameOrLog: string | StructuredLog, valueOrOptions?: LogItem | LogOptions, options?: LogOptions): void {
+        if (typeof nameOrLog === 'string') {
+            this.setOne(nameOrLog, valueOrOptions as LogItem, options);
         } else {
-            this.setMany(name as StructuredLog, value as LogOptions)
+            this.setMany(nameOrLog, valueOrOptions as LogOptions);
         }
     }
 
@@ -145,13 +154,13 @@ export class Span {
      * This method annotates the current span with details about the exception, including the error message, stack trace, and type.
      * It also includes any additional data provided in the `data` parameter.
      *
-     * @param {any} error - The error to log. This can be any type, but is typically an Error object.
+     * @param error - The error to log. This can be any type, but is typically an Error object.
      * @param {StructuredLog} [data] - Optional. Additional data to log with the error.
      */
-    exception(error: any, data?: StructuredLog) {
+    exception(error: unknown, data?: StructuredLog) {
         const details = {
-            'error': error.message || error.toString(),
-            'error.details': error.stack,
+            'error': (error as Error).message || (error as Error).toString(),
+            'error.details': (error as Error).stack,
             'error.type': getClassName(error)
         };
         const annotations = Object.entries(data || {}).reduce((logData, [key, value]) => ({
@@ -165,11 +174,11 @@ export class Span {
     /***
      * Sets a single annotation on the span.
      *
-     * @param {string} name - The name of the annotation.
-     * @param {any} value - The value of the annotation.
-     * @param {LogOptions} [options={}] - Additional options for the annotation.
+     * @param name - The name of the annotation.
+     * @param value - The value of the annotation.
+     * @param [options={}] - Additional options for the annotation.
      */
-    private setOne(name: string, value: any, options: LogOptions = {}) {
+    private setOne(name: string, value: LogItem, options: LogOptions = {}) {
         const {cascade, hoist} = options
         if (hoist && this._parent) {
             this.parent.annotate(name, value, {hoist});

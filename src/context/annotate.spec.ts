@@ -26,5 +26,5 @@ it('calls the annotate method of the logger with a StructuredLog instance', () =
 
     annotate(log, options);
 
-    expect(getLogger().annotate).toHaveBeenCalledWith(log, options, undefined);
+    expect(getLogger().annotate).toHaveBeenCalledWith(log, options);
 });

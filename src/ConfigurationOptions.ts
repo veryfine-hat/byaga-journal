@@ -1,3 +1,5 @@
+import {StructuredLog} from "./StructuredLog";
+
 export interface ConfigurationOptions {
-    write?: (data: Object) => void;
+    write?: (data: StructuredLog) => void;
 }
