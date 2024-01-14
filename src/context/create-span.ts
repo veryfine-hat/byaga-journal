@@ -2,7 +2,7 @@ import { asyncLocalStorage} from "./local-storage";
 import {getLogger, setLogger} from "./logger";
 import {setLocalContext, getSharedContext, setSharedContext} from "./context";
 
-type method = (...args: unknown[]) => unknown
+export type method = (...args: unknown[]) => unknown
 
 /**
  * Creates a new span for logging and runs a given function within the context of that span.
@@ -13,7 +13,7 @@ type method = (...args: unknown[]) => unknown
  * @param fn - The function to run within the context of the span. It should be a function that takes any number of arguments and returns a value.
  * @returns A promise that resolves to the return value of the function.
  */
-export async function createSpan<T extends method>(fn: T): Promise<ReturnType<T>> {
+export async function createSpan<T extends method>(fn: T): Promise<Awaited<ReturnType<T>>> {
     const childConfig: Map<string, unknown> = new Map()
     const span = getLogger().beginSpan()
     const parentContext = getSharedContext()
@@ -22,7 +22,7 @@ export async function createSpan<T extends method>(fn: T): Promise<ReturnType<T>
         setLocalContext(new Map());
         setSharedContext(new Map(parentContext))
         return fn()
-    }) as ReturnType<T>
+    })
     span.end()
-    return result;
+    return result as Awaited<ReturnType<T>>;
 }

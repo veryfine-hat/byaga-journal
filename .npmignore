@@ -9,3 +9,4 @@ test-results
 Dockerfile
 Jenkinsfile
 jest.config.js
+archive
