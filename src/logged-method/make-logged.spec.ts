@@ -31,17 +31,17 @@ it('returns an error when the async function throws an error', async () => {
     };
     const loggedFn = makeLogged('mockFn')(mockFn);
 
-    expect(loggedFn()).rejects.toThrow('error');
+    await expect(loggedFn()).rejects.toEqual('error');
 });
 
 it('calls the callback with an error when the function with a callback throws an error', done => {
     const mockFn = (callback: (error: unknown, result?: unknown) => void) =>{
-        callback(new Error('error'));
+        callback('error');
     }
     const loggedFn = makeLogged('mockFn')(mockFn);
 
     loggedFn((error: unknown, result: unknown) => {
-        expect(error).toBeInstanceOf(Error);
+        expect(error).toEqual('error');
         expect(result).toBeUndefined();
         done();
     });
