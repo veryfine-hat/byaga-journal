@@ -1,5 +1,5 @@
 import Journal from '../index'
-import {AsyncFunction, SafeFunction, SafeResponse} from "./AsyncFunction";
+import {AsyncFunction} from "./AsyncFunction";
 
 /**
  * Creates a higher-order function that wraps a given async function with logging behavior.
