@@ -8,7 +8,7 @@ it('returns a function that wraps an async function with logging behavior', asyn
 
     const result = await loggedFn();
 
-    expect(result).toEqual({ result: 'result'});
+    expect(result).toEqual('result');
 });
 
 it('returns a function that wraps a function with a callback with logging behavior', done => {
@@ -31,7 +31,7 @@ it('returns an error when the async function throws an error', async () => {
     };
     const loggedFn = makeLogged('mockFn')(mockFn);
 
-    expect(await loggedFn()).toEqual({error:'error'});
+    expect(loggedFn()).rejects.toThrow('error');
 });
 
 it('calls the callback with an error when the function with a callback throws an error', done => {

@@ -11,19 +11,19 @@ import {AsyncFunction, SafeFunction, SafeResponse} from "./AsyncFunction";
  * @returns A higher-order function that takes an async function and returns a new function with the same signature that has been wrapped with logging behavior.
  */
 export const makeLoggedAsync = (name: string) => {
-    function decorator<T extends AsyncFunction>(fn: T): SafeFunction<T> {
-        const decoratedFunction = async (...args: Parameters<T>): Promise<SafeResponse<ReturnType<T>>> => {
+    function decorator<T extends AsyncFunction>(fn: T): T {
+        const decoratedFunction = async (...args: Parameters<T>): Promise<ReturnType<T>> => {
             const done = Journal.startTimer(name);
             try {
-                return { result: await fn(...args) };
+                return await fn(...args);
             } catch (error) {
                 Journal.exception(error);
-                return { error };
+                throw error;
             } finally {
                 done();
             }
         }
-        return decoratedFunction as SafeFunction<T>;
+        return decoratedFunction as T;
     }
 
     return decorator;

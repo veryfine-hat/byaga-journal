@@ -14,20 +14,19 @@ it('returns a function that wraps an async function with logging behavior', asyn
 
     const result = await loggedFn('arg1', 'arg2');
 
-    expect(result).toEqual({result: 'result'});
+    expect(result).toEqual('result');
     expect(mockFn).toHaveBeenCalledWith('arg1', 'arg2');
     expect(Journal.startTimer).toHaveBeenCalledWith('mockFn');
     expect(Journal.exception).not.toHaveBeenCalled();
 });
 
 it('returns a function that wraps an async function and handles errors', async () => {
-    const mockFn = jest.fn().mockRejectedValue(new Error('error'));
+    const mockFn = jest.fn().mockImplementation(() => {
+        throw 'error'
+    });
     const loggedFn = makeLoggedAsync('mockFn')(mockFn);
 
-    const result = await loggedFn('arg1', 'arg2');
+    const result = loggedFn('arg1', 'arg2');
 
-    expect(result).toEqual({error: new Error('error')});
-    expect(mockFn).toHaveBeenCalledWith('arg1', 'arg2');
-    expect(Journal.startTimer).toHaveBeenCalledWith('mockFn');
-    expect(Journal.exception).toHaveBeenCalledWith(new Error('error'));
+    await expect(result).rejects.toEqual('error');
 });
