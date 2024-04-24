@@ -3,7 +3,7 @@
  * @module withChildSpan
  */
 
-import {createSpan, method} from "./create-span";
+import {createSpan} from "./create-span";
 import {annotate} from "./annotate";
 import {exception} from "./exception";
 import {SafeResponse} from "../logged-method/AsyncFunction";

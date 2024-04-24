@@ -9,7 +9,7 @@
     "build": "npm run clean && tsc",
     "lint": "eslint . --ext .ts",
     "test": "jest",
-    "preversion": "npm run lint && npm test && npm run build"
+    "precommit": "npm run lint && npm test && npm run build"
   },
   "keywords": [
     "logging"
