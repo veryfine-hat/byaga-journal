@@ -15,3 +15,12 @@ it('enters a context with the rootConfig', () => {
 
     expect(mockEnterWith).toHaveBeenCalledWith(rootConfig);
 });
+
+it('should preserve the local storage when multiple instances of the package are imported', () => {
+    jest.resetModules(); // Forces the module to be reloaded
+    const asyncLocalStorage1 = jest.requireActual('./local-storage').asyncLocalStorage;
+    jest.resetModules(); // Forces the module to be reloaded to simulate importing a 2nd copy of the package
+    const asyncLocalStorage2 = jest.requireActual('./local-storage').asyncLocalStorage;
+
+    expect(asyncLocalStorage1).toBe(asyncLocalStorage2);
+});
