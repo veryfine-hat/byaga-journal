@@ -20,8 +20,8 @@ export const getLogger = (): Span => getStore().get(LOGGER) as Span
  */
 export const setLogger = (logger: Span) => getStore().set(LOGGER, logger)
 
-// Creates a new Journal instance
-export const logger = new Journal()
+const existingLogger = rootConfig.get(LOGGER) as Journal
+if (!existingLogger) { rootConfig.set(LOGGER, new Journal()) }
 
-// Sets the rootConfig's LOGGER entry to the new Journal instance
-rootConfig.set(LOGGER, logger)
+// Creates a new Journal instance
+export const logger = (): Journal => rootConfig.get(LOGGER) as Journal

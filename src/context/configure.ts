@@ -10,7 +10,7 @@ import {logger} from "./logger";
  * @param {ContextConfiguration} config - The configuration object for the context management system.
  */
 export const configure = (config: ContextConfiguration) => {
-  logger.configure(config)
+  logger().configure(config)
   if (config.logLevel !== undefined) setLogLevel(config.logLevel);
 }
 
