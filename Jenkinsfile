@@ -10,6 +10,9 @@ def branchType(branchName, productionBranch) {
         return 'develop'
     }
 }
+def gitSign
+def npmVersion
+def npmPublish
 
 pipeline {
   agent { label "agent" }
@@ -21,6 +24,19 @@ pipeline {
     SOURCE_CONTROL_USER = 'git@github.com'
   }
   stages {
+    stage("scripts") {
+        configFileProvider([
+            configFile(fileId: SIGN_SCRIPT, variable: 'GIT_SIGN'),
+            configFile(fileId: VERSION_SCRIPT, variable: 'NPM_VERSION'),
+            configFile(fileId: PUBLISH_SCRIPT, variable: 'NPM_PUBLISH'),
+        ]) {
+          script {
+            gitSign = load "$GIT_SIGN"
+            npmVersion = load "$NPM_VERSION"
+            npmPublish = load "$NPM_PUBLISH"
+          }
+        }
+    }
     stage("npm") { steps { sh 'install-tool npm' } }
     stage("dependencies") {
       steps {
@@ -36,25 +52,11 @@ pipeline {
     stage("lint") { steps { sh 'npm run lint' } }
     stage("sign") {
       when { not { branch PRODUCTION_BRANCH } }
-      steps {
-        configFileProvider([configFile(fileId: SIGN_SCRIPT, variable: 'SCRIPT_DATA')]) {
-          script {
-            def signScript = load "$SCRIPT_DATA"
-            signScript()
-          }
-        }
-      }
+      steps { gitSign() }
     }
     stage("version") {
       when { not { branch PRODUCTION_BRANCH } }
-      steps {
-        configFileProvider([configFile(fileId: VERSION_SCRIPT, variable: 'VERSION_SCRIPT')]) {
-          script {
-            def versionScript = load "$VERSION_SCRIPT"
-            versionScript()
-          }
-        }
-      }
+      steps { npmVersion() }
     }
     stage("release") {
       when { not { branch PRODUCTION_BRANCH } }
@@ -71,16 +73,7 @@ pipeline {
         beforeInput true
         branch PRODUCTION_BRANCH
       }
-      steps {
-        lock(resource: "${env.BRANCH_NAME}-production") {
-          configFileProvider([configFile(fileId: 'publish-groovy', variable: 'SCRIPT_DATA')]) {
-            script {
-              def publishScript = load "$SCRIPT_DATA"
-              publishScript()
-            }
-          }
-        }
-      }
+      steps { lock(resource: "${env.BRANCH_NAME}-production") { npmPublish() } }
     }
   }
 }
