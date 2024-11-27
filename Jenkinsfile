@@ -1,7 +1,4 @@
 def PRODUCTION_BRANCH = "master"
-def SIGN_SCRIPT = 'd53821ca-5194-4b4b-a30a-385f33d03cff'
-def VERSION_SCRIPT = '661d583f-966d-484b-ba97-ea35d28343e8'
-def PUBLISH_SCRIPT = '2a833442-7210-4bb2-99eb-a0694dc119b6'
 
 def branchType(branchName, productionBranch) {
     if (branchName == productionBranch) {
@@ -25,10 +22,11 @@ pipeline {
   }
   stages {
     stage("scripts") {
+      steps {
         configFileProvider([
-            configFile(fileId: SIGN_SCRIPT, variable: 'GIT_SIGN'),
-            configFile(fileId: VERSION_SCRIPT, variable: 'NPM_VERSION'),
-            configFile(fileId: PUBLISH_SCRIPT, variable: 'NPM_PUBLISH'),
+            configFile(fileId: 'd53821ca-5194-4b4b-a30a-385f33d03cff', variable: 'GIT_SIGN'),
+            configFile(fileId: '661d583f-966d-484b-ba97-ea35d28343e8', variable: 'NPM_VERSION'),
+            configFile(fileId: '2a833442-7210-4bb2-99eb-a0694dc119b6', variable: 'NPM_PUBLISH'),
         ]) {
           script {
             gitSign = load "$GIT_SIGN"
@@ -36,6 +34,7 @@ pipeline {
             npmPublish = load "$NPM_PUBLISH"
           }
         }
+      }
     }
     stage("npm") { steps { sh 'install-tool npm' } }
     stage("dependencies") {
