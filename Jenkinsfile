@@ -37,9 +37,9 @@ pipeline {
     stage("sign") {
       when { not { branch PRODUCTION_BRANCH } }
       steps {
-        configFileProvider([configFile(fileId: SIGN_SCRIPT, variable: 'SIGN_SCRIPT')]) {
+        configFileProvider([configFile(fileId: SIGN_SCRIPT, variable: 'SCRIPT_DATA')]) {
           script {
-            def signScript = load(SIGN_SCRIPT)
+            def signScript = load "$SCRIPT_DATA"
             signScript()
           }
         }
@@ -50,7 +50,7 @@ pipeline {
       steps {
         configFileProvider([configFile(fileId: VERSION_SCRIPT, variable: 'VERSION_SCRIPT')]) {
           script {
-            def versionScript = load(VERSION_SCRIPT)
+            def versionScript = load "$VERSION_SCRIPT"
             versionScript()
           }
         }
@@ -65,19 +65,17 @@ pipeline {
       }
     }
     stage("publish") {
-      options { timeout(time: 1, unit: 'DAYS') }
-      environment {
-        NODE_ENV = 'production'
-      }
+      options { timeout time: 1, unit: 'DAYS' }
+      environment { NODE_ENV = 'production' }
       when {
         beforeInput true
         branch PRODUCTION_BRANCH
       }
       steps {
         lock(resource: "${env.BRANCH_NAME}-production") {
-          configFileProvider([configFile(fileId: 'publish-groovy', variable: 'PUBLISH_SCRIPT')]) {
+          configFileProvider([configFile(fileId: 'publish-groovy', variable: 'SCRIPT_DATA')]) {
             script {
-              def publishScript = load(PUBLISH_SCRIPT)
+              def publishScript = load "$SCRIPT_DATA"
               publishScript()
             }
           }
