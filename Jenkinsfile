@@ -51,11 +51,11 @@ pipeline {
     stage("lint") { steps { sh 'npm run lint' } }
     stage("sign") {
       when { not { branch PRODUCTION_BRANCH } }
-      steps { gitSign() }
+      steps { script { gitSign() } }
     }
     stage("version") {
       when { not { branch PRODUCTION_BRANCH } }
-      steps { npmVersion() }
+      steps { script { npmVersion() } }
     }
     stage("release") {
       when { not { branch PRODUCTION_BRANCH } }
@@ -72,7 +72,7 @@ pipeline {
         beforeInput true
         branch PRODUCTION_BRANCH
       }
-      steps { lock(resource: "${env.BRANCH_NAME}-production") { npmPublish() } }
+      steps { lock(resource: "${env.BRANCH_NAME}-production") { script { npmPublish() } } }
     }
   }
 }
