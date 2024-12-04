@@ -60,10 +60,7 @@ pipeline {
     stage("release") {
       when { not { branch PRODUCTION_BRANCH } }
       environment { TARGET_BRANCH = "${PRODUCTION_BRANCH}" }
-      steps {
-        sh 'git branch $TARGET_BRANCH'
-        sh 'git push origin $TARGET_BRANCH'
-      }
+      steps { script { gitPush(PRODUCTION_BRANCH) } }
     }
     stage("publish") {
       options { timeout time: 1, unit: 'DAYS' }
